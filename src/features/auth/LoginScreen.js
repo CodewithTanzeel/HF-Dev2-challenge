@@ -11,6 +11,9 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useAuth } from './AuthContext';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import { COLORS } from '../../components/ui/Theme';
 
 export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
@@ -42,7 +45,7 @@ export default function LoginScreen({ navigation }) {
             <Text style={styles.brandSubtitle}>Verify. Trust. Eat Confidently.</Text>
           </View>
 
-          <View style={styles.card}>
+          <Card>
             <Text style={styles.heading}>Log In</Text>
 
             <TextInput
@@ -68,15 +71,13 @@ export default function LoginScreen({ navigation }) {
               accessibilityLabel="Password input"
             />
 
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
+            <Button
+              title={isLoading ? 'Signing in...' : 'Log In'}
               onPress={handleLogin}
               disabled={isLoading}
-              accessibilityRole="button"
               accessibilityLabel="Log in button"
-            >
-              <Text style={styles.buttonText}>{isLoading ? 'Signing in...' : 'Log In'}</Text>
-            </TouchableOpacity>
+              style={styles.button}
+            />
 
             <View style={styles.footerRow}>
               <Text style={styles.footerText}>New to Halal Scanner?</Text>
@@ -84,20 +85,17 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.link}>Create an account</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Card>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-const GREEN = '#16a34a';
-const DARK_GREEN = '#14532d';
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f5f7f0',
+    backgroundColor: COLORS.MINT_BG,
   },
   container: {
     flex: 1,
@@ -115,7 +113,7 @@ const styles = StyleSheet.create({
   brandTitle: {
     fontSize: 36,
     fontWeight: '800',
-    color: DARK_GREEN,
+    color: COLORS.DARK_GREEN,
     letterSpacing: -1,
   },
   brandSubtitle: {
@@ -123,20 +121,10 @@ const styles = StyleSheet.create({
     color: '#558b2f',
     marginTop: 4,
   },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    elevation: 6,
-  },
   heading: {
     fontSize: 24,
     fontWeight: '700',
-    color: DARK_GREEN,
+    color: COLORS.DARK_GREEN,
     marginBottom: 20,
   },
   input: {
@@ -151,19 +139,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   button: {
-    backgroundColor: GREEN,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
     marginTop: 4,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '700',
   },
   footerRow: {
     flexDirection: 'row',
@@ -176,7 +152,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   link: {
-    color: GREEN,
+    color: COLORS.GREEN,
     fontWeight: '700',
     fontSize: 14,
     marginLeft: 4,

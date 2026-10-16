@@ -1,6 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { Camera } from 'expo-camera';
+import Button from '../../components/ui/Button';
+import Card from '../../components/ui/Card';
+import { COLORS } from '../../components/ui/Theme';
 
 export default function CameraCapture() {
   const [photo, setPhoto] = useState(null);
@@ -27,29 +30,29 @@ export default function CameraCapture() {
             style={styles.camera}
             type={Camera.Constants.Type.back}
           />
-          <TouchableOpacity
-            testID="capture-btn"
-            style={styles.captureBtn}
+          <Button
+            title="Capture"
             onPress={handleCapture}
             accessibilityLabel="Capture photo"
-          >
-            <Text style={styles.captureText}>Capture</Text>
-          </TouchableOpacity>
+            style={styles.captureBtn}
+          />
         </View>
       ) : (
         <View testID="preview" style={styles.previewWrapper}>
-          <Image source={{ uri: photo }} style={styles.previewImage} />
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            <Image source={{ uri: photo }} style={styles.previewImage} />
+          </Card>
           <Text style={styles.ocrTitle}>Scan Results</Text>
           <Text style={styles.ocrText}>{ocrText}</Text>
-          <TouchableOpacity
-            style={styles.resetBtn}
+          <Button
+            title="Scan Again"
             onPress={() => {
               setPhoto(null);
               setOcrText('');
             }}
-          >
-            <Text style={styles.resetText}>Scan Again</Text>
-          </TouchableOpacity>
+            accessibilityLabel="Scan again"
+            style={styles.resetBtn}
+          />
         </View>
       )}
     </View>
@@ -59,7 +62,7 @@ export default function CameraCapture() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6fdf6',
+    backgroundColor: COLORS.MINT_BG,
   },
   cameraWrapper: {
     flex: 1,
@@ -72,39 +75,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 32,
     alignSelf: 'center',
-    backgroundColor: '#16a34a',
-    paddingHorizontal: 32,
-    paddingVertical: 14,
     borderRadius: 28,
-    shadowColor: '#14532d',
+    shadowColor: COLORS.DARK_GREEN,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 6,
     elevation: 6,
-  },
-  captureText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
   },
   previewWrapper: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f0fdf4',
+    backgroundColor: COLORS.MINT_BG,
   },
   previewImage: {
     width: '100%',
     height: 300,
     borderRadius: 16,
     borderWidth: 2,
-    borderColor: '#16a34a',
+    borderColor: COLORS.GREEN,
   },
   ocrTitle: {
     marginTop: 20,
     fontSize: 20,
     fontWeight: '800',
-    color: '#14532d',
+    color: COLORS.DARK_GREEN,
   },
   ocrText: {
     marginTop: 10,
@@ -114,14 +110,6 @@ const styles = StyleSheet.create({
   },
   resetBtn: {
     marginTop: 24,
-    backgroundColor: '#14532d',
-    paddingVertical: 14,
     borderRadius: 28,
-    alignItems: 'center',
-  },
-  resetText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
   },
 });
