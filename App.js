@@ -1,10 +1,26 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import CameraCapture from './components/CameraCapture';
+import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
+import SignupWall from './src/features/auth/SignupWall';
+import CameraCapture from './src/features/scan/CameraCapture';
 import { translateIngredients } from './components/TranslationEngine';
 import ScanHistory from './components/ScanHistory';
 
-export default function App() {
+function AppContent() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (!user) {
+    return <SignupWall />;
+  }
+
   return (
     <View style={styles.container}>
       <Text>Halal Scanner</Text>
@@ -12,6 +28,14 @@ export default function App() {
       <ScanHistory />
       <StatusBar style="auto" />
     </View>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
