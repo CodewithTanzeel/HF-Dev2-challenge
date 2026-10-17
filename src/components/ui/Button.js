@@ -2,12 +2,13 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { COLORS } from './Theme';
 
-export default function Button({ title, onPress, disabled = false, style }) {
+export default function Button({ title, onPress, disabled = false, style, testID }) {
   return (
     <TouchableOpacity
       style={[styles.btn, disabled && styles.disabled, style]}
       onPress={onPress}
       disabled={disabled || !onPress}
+      testID={testID}
       activeOpacity={0.85}
       accessibilityRole="button"
       accessibilityLabel={title}

@@ -1,0 +1,15 @@
+export const HALAL_RULES = [
+    { name: 'water', status: 'halal', halal: 1, synonyms: [] },
+    { name: 'flour', status: 'halal', halal: 1, synonyms: [] },
+    { name: 'sugar', status: 'halal', halal: 1, synonyms: [] },
+    { name: 'salt', status: 'halal', halal: 1, synonyms: [] },
+    { name: 'vegetable oil', status: 'halal', halal: 1, synonyms: ['sunflower oil', 'canola oil'] },
+    { name: 'gelatin', status: 'haram', halal: 0, synonyms: ['gelatine'] },
+    { name: 'pork', status: 'haram', halal: 0, synonyms: ['porcine'] },
+    { name: 'lard', status: 'haram', halal: 0, synonyms: [] },
+    { name: 'alcohol', status: 'haram', halal: 0, synonyms: ['ethanol'] },
+    { name: 'carmine', status: 'haram', halal: 0, synonyms: ['cochineal', 'e120'] },
+    { name: 'mono and diglycerides', status: 'uncertain', halal: null, synonyms: ['e471'] },
+    { name: 'enzymes', status: 'uncertain', halal: null, synonyms: ['enzymes'] },
+    { name: 'whey', status: 'uncertain', halal: null, synonyms: [] },
+];

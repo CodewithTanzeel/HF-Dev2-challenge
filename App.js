@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import SignupWall from './src/features/auth/SignupWall';
 import CameraCapture from './src/features/scan/CameraCapture';
-import { translateIngredients } from './components/TranslationEngine';
 import ScanHistory from './components/ScanHistory';
 
 function AppContent() {
@@ -39,4 +38,10 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({ container: { flex: 1, alignItems: 'center', justifyContent: 'center' } });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'stretch',
+    justifyContent: 'flex-start',
+  },
+});
