@@ -11,7 +11,12 @@ export async function recognizeIngredients(imageUri) {
 
     try {
         const result = await TextRecognition.recognize(imageUri);
-        const text = String(result?.text || '').trim();
+        const rawText = String(result?.text || '').trim();
+        // Stabilize: normalize whitespace, handle multi-line ingredients
+        const text = rawText
+            .replace(/\s+/g, ' ')
+            .replace(/\n+/g, ' ')
+            .trim();
 
         return {
             status: text ? 'success' : 'empty',
@@ -22,7 +27,7 @@ export async function recognizeIngredients(imageUri) {
         return {
             status: 'error',
             text: '',
-            error: error.message || 'Offline OCR failed.',
+            error: error?.message || 'Offline OCR failed.',
         };
     }
 }
