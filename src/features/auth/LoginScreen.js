@@ -20,14 +20,61 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const validateEmail = (text) => {
+    setEmail(text);
+    if (!text) {
+      setEmailError('Email is required');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text)) {
+      setEmailError('Enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const validatePassword = (text) => {
+    setPassword(text);
+    if (!text) {
+      setPasswordError('Password is required');
+    } else if (text.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+    } else {
+      setPasswordError('');
+    }
+  };
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
   const handleLogin = async () => {
-    if (!email || !password) return;
+    let isValid = true;
+    if (!email) {
+      setEmailError('Email is required');
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError('Enter a valid email address');
+      isValid = false;
+    }
+
+    if (!password) {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else if (password.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
     setIsLoading(true);
     try {
       await login(email, password);
     } catch (e) {
-      // Handled silently for demo flow
+      setEmailError('Login failed. Please check credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -53,28 +100,30 @@ export default function LoginScreen({ navigation }) {
               placeholder="Email address"
               placeholderTextColor="#999"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={validateEmail}
               autoCapitalize="none"
               keyboardType="email-address"
               textContentType="emailAddress"
               accessibilityLabel="Email input"
             />
+            {emailError ? <Text style={styles.error}>{emailError}</Text> : null}
 
             <TextInput
               style={styles.input}
               placeholder="Password"
               placeholderTextColor="#999"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={validatePassword}
               secureTextEntry
               textContentType="password"
               accessibilityLabel="Password input"
             />
+            {passwordError ? <Text style={styles.error}>{passwordError}</Text> : null}
 
             <Button
               title={isLoading ? 'Signing in...' : 'Log In'}
               onPress={handleLogin}
-              disabled={isLoading}
+              disabled={isLoading || !!emailError || !!passwordError || !email || !password}
               accessibilityLabel="Log in button"
               style={styles.button}
             />
@@ -140,6 +189,12 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 4,
+  },
+  error: {
+    color: '#d32f2f',
+    fontSize: 13,
+    marginBottom: 6,
+    marginTop: -6,
   },
   footerRow: {
     flexDirection: 'row',
