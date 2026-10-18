@@ -21,6 +21,6 @@ describe('saveScan', () => {
 
         expect(database.runSync).toHaveBeenCalledTimes(2);
         expect(database.runSync.mock.calls[0][1]).toEqual(['Ingredients: water', expect.any(String)]);
-        expect(database.runSync.mock.calls[1][1]).toEqual([7, 1, 'Halal', 'water', '', expect.any(String)]);
+        expect(database.runSync.mock.calls[1][1]).toEqual([7, 1, 'Halal', 'water', '', expect.any(String), null, 0]);
     });
 });
