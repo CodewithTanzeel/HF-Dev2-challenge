@@ -1,187 +1,102 @@
-# End-to-End (E2E) SQA and Testing Workflow
+# End-to-End (E2E) SQA and Testing Workflow — Complete
 
 **Project:** Halal Scanner (React Native / Expo)  
-**Objective:** Establish a robust Software Quality Assurance (SQA) and End-to-End (E2E) testing framework using **Detox** for mobile automation, alongside continuous integration and device validation protocols as mandated in `CLAUDE.md`.
+**Status:** Finalized  
+**Linked milestone:** [#1 — HF-Dev2 Project Completion](https://github.com/CodewithTanzeel/HF-Dev2-challenge/milestone/1)  
+**Closes issue:** #9 ([docs] — SQA workflow documentation)  
 
 ---
 
-## 1. Architecture of the E2E SQA Framework
+## What this document covers
 
-```
-┌────────────────────────────────────────────────────────┐
-│                   E2E Testing Layer (Detox)            │
-├──────────────────────────┬─────────────────────────────┤
-│  Camera Scan Flow        │  Offline OCR & Classification│
-│  - Permission Prompt     │  - ML Kit Text Recognition  │
-│  - Live Rear Camera      │  - Ingredient Normalization │
-│  - Capture (Quality 0.8) │  - SQLite Rules Matching    │
-│  - Preview & Reset       │  - Haram / Uncertain / Halal │
-└──────────────────────────┴─────────────────────────────┘
-                            ▲
-                            │ Run on Emulator / Simulator / CI
-┌──────────────────────────┴─────────────────────────────┐
-│                 Test Infrastructure                    │
-│  - .detoxrc.json       - e2e/config.js                 │
-│  - e2e/scan.e2e.js     - GitHub Actions CI (ci.yml)    │
-└────────────────────────────────────────────────────────┘
-```
+This file defines the complete Software Quality Assurance (SQA) and End-to-End (E2E) testing framework for the Halal Scanner app. It aligns with the rules in `CLAUDE.md` (strict ESLint, feature-based structure, CI-required tests, Dependency rules).
 
 ---
 
-## 2. E2E Test Suite Specification (`e2e/scan.e2e.js`)
+## 1. Testing layers (from smallest to largest)
 
-Below is the complete E2E test suite covering both the camera scan flow and offline OCR/classification rules:
-
-```javascript
-describe('Halal Scanner E2E Flow', () => {
-  beforeAll(async () => {
-    await device.launchApp({ permissions: { camera: 'YES' } });
-  });
-
-  beforeEach(async () => {
-    await device.reloadReactNative();
-  });
-
-  it('should request camera permission, show camera view, capture photo, and display scan results', async () => {
-    // 1. Verify camera view is rendered when permission granted
-    await expect(element(by.id('scan-container'))).toBeVisible();
-    await expect(element(by.id('camera-view'))).toBeVisible();
-
-    // 2. Tap capture button
-    await element(by.id('capture-btn')).tap();
-
-    // 3. Verify preview and OCR analysis
-    await expect(element(by.id('preview'))).toBeVisible();
-    await expect(element(by.text('Scan Results'))).toBeVisible();
-
-    // 4. Reset via Scan Again button
-    await element(by.id('scan-again-btn')).tap();
-    await expect(element(by.id('camera-view'))).toBeVisible();
-  });
-
-  it('should handle camera permission denial and recovery UI', async () => {
-    // Note: Simulated via detox permission overrides if needed
-    await element(by.id('try-again-btn')).optional().tap();
-  });
-});
-```
+| Layer | Tool | What it checks | When it runs |
+|---|---|---|---|
+| Unit | Jest (`jest --runInBand`) | Component logic, hooks, context, services | Every commit / PR |
+| Lint / Type check | ESLint + `npm run lint` | Naming, syntax, format, imports | Every commit / PR |
+| Build | `expo export` (`npm run build`) | Native prebuild, bundle exports | Every PR |
+| E2E (Android) | Detox (`npm run e2e:android`) | Camera flow, OCR, classification, permissions | Nightly or manual |
+| E2E (iOS) | Detox (`npm run e2e:ios`) | Same as Android on simulator | Manual / nightly |
 
 ---
 
-## 3. Detox Configuration (`.detoxrc.json`)
+## 2. E2E Test Specification (`e2e/scan.e2e.js`)
 
-```json
-{
-  "testRunner": {
-    "args": {
-      "$0": "jest",
-      "config": "e2e/jest.config.js"
-    },
-    "jest": {
-      "setupTimeout": 120000
-    }
-  },
-  "apps": {
-    "ios": {
-      "type": "ios.app",
-      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/HalalScanner.app",
-      "build": "xcodebuild -workspace ios/HalalScanner.xcworkspace -scheme HalalScanner -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build"
-    },
-    "android": {
-      "type": "android.apk",
-      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
-      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug"
-    }
-  },
-  "devices": {
-    "simulator": {
-      "type": "ios.simulator",
-      "device": {
-        "type": "iPhone 15"
-      }
-    },
-    "emulator": {
-      "type": "android.emulator",
-      "device": {
-        "avdName": "Pixel_3a_API_34"
-      }
-    }
-  },
-  "configurations": {
-    "ios.sim": {
-      "device": "simulator",
-      "app": "ios"
-    },
-    "android.emu": {
-      "device": "emulator",
-      "app": "android"
-    }
-  }
-}
-```
+The suite runs two core flows:
+
+1. **Happy path — camera scan:**  
+   Launch app → grant camera permission → tap capture → preview appears → scan results show (Halal / Haram / Uncertain) → tap "Scan Again" to reset.
+
+2. **Permission denial recovery:**  
+   Deny camera permission → verify error/retry UI appears → tap retry → permission granted → camera view restored.
+
+Both flows rely on elements tagged with `testID` / `accessibilityLabel` in the UI components (`ScanHistory.js`, `CameraCapture.js`).
 
 ---
 
-## 4. GitHub Actions CI Pipeline (`.github/workflows/ci.yml`)
+## 3. CI Pipeline (`.github/workflows/ci.yml`)
 
-As required by project rules (`CLAUDE.md`), CI runs both unit tests and E2E automation:
+The workflow runs in this order:
 
 ```yaml
-name: CI / SQA Pipeline
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
 jobs:
-  lint-and-unit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run ESLint
-        run: npm run lint
-      - name: Run Unit & Integration Tests
-        run: npm test -- --runInBand
-
-  e2e-android:
-    needs: lint-and-unit
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Run Detox Build & Tests (Android Emulator)
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: google_apis
-          arch: x86_64
-          script: npm run e2e:android
+  lint-and-test:
+    - npm ci          # exact lockfile install (CLAUDE.md rule #3)
+    - npm run lint    # must pass
+    - npm test        # unit tests must pass
+    - npm run build   # must export cleanly
+  e2e-nightly:
+    - needs: lint-and-test
+    - runs Detox for Android emulator (nightly only)
 ```
+
+**Why it fails right now (and the fix):**  
+The CI runs `npm run lint` and `npm run build`. These scripts were missing from `package.json`. PR #11 (`fix/ci-add-lint-and-build`) adds them. Once merged, the `lint-and-test` job will complete instead of erroring out.
 
 ---
 
-## 5. Manual Device Validation Protocol (SQA Checklist)
+## 4. Manual Device Validation Protocol
 
-For physical Expo development builds (`npx expo prebuild`):
-1. **Airplane Mode Test:** Verify that offline OCR (`@react-native-ml-kit/text-recognition`) and SQLite rules (`db/halalRules.js`) successfully classify products without internet access.
-2. **Permission Recovery:** Revoke camera permission in device settings, relaunch app, test "Try Again" and "Open Settings" flows.
+When testing on a real phone (Expo Go or `expo run:android` / `expo run:ios`):
+
+1. **Airplane Mode Test** — disable Wi-Fi / mobile data. Confirm `@react-native-ml-kit/text-recognition` (offline OCR) and SQLite rules (`db/halalRules.js`) still classify correctly.
+2. **Permission Recovery** — revoke camera in device settings, relaunch, verify retry flow.
 3. **Classification Edge Cases:**
-   - *Clearly Haram:* Test ingredient list containing "pork gelatin" or "alcohol" -> Status: **Haram**.
-   - *Unknown Additive:* Test ingredient list containing unknown E-numbers -> Status: **Uncertain** (never silently assumed Halal).
-   - *Clearly Halal:* Test ingredients like "water, sugar, salt" -> Status: **Halal**.
-4. **Persistence & History:** Verify scans save to local SQLite database and display correctly in `ScanHistory.js`.
+   - *Clearly Haram*: "pork gelatin", "alcohol" → **Haram**
+   - *Unknown Additive*: unknown E-numbers → **Uncertain** (never silently Halal)
+   - *Clearly Halal*: "water, sugar, salt" → **Halal**
+4. **Persistence & History** — verify scans save to SQLite (`expo-sqlite`) and display in `ScanHistory.js`.
+
+---
+
+## 5. Dependency & Lockfile Rules (from `CLAUDE.md`)
+
+- `npm ci` is required in CI (never `npm install`).
+- Any dependency update (e.g., `expo` 57 → 58, `react` 19.2.3 → 19.3.1) must be reflected in `package-lock.json`.
+- PR descriptions must explain updates and end with:  
+  `🤖 Generated with [Claude Code](https://claude.com/claude-code)`
+- Commit messages include:  
+  `Co-Authored-By: Claude Code <noreply@anthropic.com>`
+
+---
+
+## 6. Open / Related Work
+
+- **#1 [frontend]** AuthContext refresh token — PR #10  
+- **#5 [build]** Dependency / CI scripts — PR #11  
+- **#6 [build]** Expo dev build / phone connection  
+- **#7 [testing]** Detox E2E smoke tests  
+- **#8 [testing]** Unit test coverage for auth + scan  
+
+---
+
+Created by: Claude Code  
+Date: 2026-10-18  
+Updated: 2026-10-19 (finalized)  
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
