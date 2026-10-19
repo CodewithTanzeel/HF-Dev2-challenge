@@ -63,9 +63,9 @@ export default function CameraCapture() {
       }
       setPhoto(uri);
       const result = await processScan(uri);
-      setOcrText(result?.ocrText || '');
-      setClassification(result?.classification || null);
-      if (result?.state !== 'complete') setError(result?.error || 'Scan did not complete.');
+      setOcrText(result.ocrText || '');
+      setClassification(result.classification || null);
+      if (result.state !== 'complete') setError(result.error || 'Scan did not complete.');
     } catch (captureError) {
       setError(captureError?.message || 'Unable to capture the image.');
     } finally {
