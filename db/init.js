@@ -11,6 +11,8 @@ export function initializeDatabase() {
 		CREATE TABLE IF NOT EXISTS halal_rules (name TEXT PRIMARY KEY, halal BOOLEAN, status TEXT, synonyms TEXT, cert TEXT, region TEXT);
 		CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, email TEXT);
 		CREATE TABLE IF NOT EXISTS poi (id INTEGER PRIMARY KEY, name TEXT, lat REAL, lon REAL, halal BOOLEAN, campus TEXT);
+		CREATE TABLE IF NOT EXISTS waitlist (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT UNIQUE NOT NULL, display_name TEXT, public_display BOOLEAN DEFAULT 1, signup_timestamp TEXT DEFAULT CURRENT_TIMESTAMP, referral_code TEXT, referral_attribution TEXT);
+		CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email);
 	`);
 
     for (const column of ['status TEXT', 'synonyms TEXT']) {
