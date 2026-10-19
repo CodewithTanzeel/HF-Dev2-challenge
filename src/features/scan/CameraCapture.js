@@ -50,13 +50,18 @@ export default function CameraCapture() {
   }, [permission]);
 
   const handleCapture = async () => {
-    if (!cameraRef.current) return;
+    if (!cameraRef.current || isProcessing) return;
 
     try {
       setError('');
-      const { uri } = await cameraRef.current.takePictureAsync({ quality: 0.8 });
-      setPhoto(uri);
       setIsProcessing(true);
+      const { uri } = await cameraRef.current.takePictureAsync({ quality: 0.8 });
+      if (!uri) {
+        setError('Camera capture returned no image.');
+        setIsProcessing(false);
+        return;
+      }
+      setPhoto(uri);
       const result = await processScan(uri);
       setOcrText(result.ocrText || '');
       setClassification(result.classification || null);
