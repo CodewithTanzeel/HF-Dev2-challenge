@@ -2,8 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import SignupWall from './src/features/auth/SignupWall';
-import CameraCapture from './src/features/scan/CameraCapture';
-import ScanHistory from './components/ScanHistory';
+import WaitlistScreen from './src/features/waitlist/WaitlistScreen';
 
 function AppContent() {
   const { user, isLoading } = useAuth();
@@ -17,14 +16,13 @@ function AppContent() {
   }
 
   if (!user) {
-    return <SignupWall />;
+    return <WaitlistScreen />;
   }
 
   return (
     <View style={styles.container}>
       <Text>Halal Scanner</Text>
       <CameraCapture />
-      <ScanHistory />
       <StatusBar style="auto" />
     </View>
   );

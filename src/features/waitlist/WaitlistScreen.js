@@ -7,8 +7,6 @@ import { addWaitlistEntry, getWaitlistEntries, getWaitlistCount, getTotalWaitlis
 import { initializeDatabase } from '../../db/init';
 
 export default function WaitlistScreen() {
-  const [email, setEmail] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -42,8 +40,6 @@ export default function WaitlistScreen() {
     try {
       await addWaitlistEntry(email, displayName || null, 1, null, null);
       setSuccess(true);
-      setEmail('');
-      setDisplayName('');
       await loadWall();
     } catch (err) {
       setError(err.message || 'Failed to register. Please try again.');
